@@ -5,10 +5,22 @@ import java.util.ArrayList;
 public class Selector {
 	private Handler handler;
 	private Population myPop;
+	private int goalX, goalY;
 	
 	public Selector(Handler handler, Population myPop) {
 		this.handler = handler;
 		this.myPop = myPop;
+		setGoal();
+	}
+	
+	private void setGoal() {
+		for (GameObject o : handler) {
+			if (o.id == ID.Goal) {
+				goalX = o.getX();
+				goalY = o.getY();
+				return;
+			}
+		}
 	}
 	
 	public void tick() {
@@ -20,14 +32,14 @@ public class Selector {
 	}
 	
 	private Dot[] makeBabies() {
-		int totalFitness = 0;
+		double totalFitness = 0;
 		
 		//calculate total fitness
 		
 		for (Dot dot : (Dot[])myPop.getDots()) {
-			double fitness = fitness(dot, 0, 0);
+			double fitness = fitness(dot);
 			totalFitness += fitness;
-			int[] fitnessInterval = {(int) (totalFitness-fitness), totalFitness};
+			double[] fitnessInterval = {(totalFitness-fitness), totalFitness};
 			dot.setFitnessInterval(fitnessInterval);
 			System.out.print("Dot of distance: " + 
 					dot.distanceToVal(DotGame.WIDTH/2, 100));
@@ -38,7 +50,9 @@ public class Selector {
 		
 		ArrayList<Dot> newDots = new ArrayList<Dot>();
 		
-		//select dots based on fitness and add them to an ArrayList of chosen dots
+		
+		//randomly select fitness scores and keep the dots within that range 
+		/**
 		while (newDots.size() < myPop.populationSize/2) {
 			int selection = (int)(Math.random()*totalFitness);
 			for (Dot dot : (Dot[])myPop.getDots()) {
@@ -50,6 +64,11 @@ public class Selector {
 				}
 			}
 		}
+		**/
+		//or select all the highest scoring dots
+		
+		
+		
 		Dot[] newDotArray = new Dot[myPop.populationSize];
 		
 		for (int i = 0; i < newDotArray.length; i ++) {
@@ -74,8 +93,8 @@ public class Selector {
 		return array;
 	}
 
-	private double fitness(Dot dot, int goalX, int goalY) {
+	private double fitness(Dot dot) {
 		double dist = dot.distanceToVal(goalX, goalY);
-		return 1 / (Math.pow(dist, 2));
+		return 1 / (Math.pow(dist, 3));
 	}
 }

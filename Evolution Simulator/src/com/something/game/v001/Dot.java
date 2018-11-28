@@ -14,7 +14,7 @@ public class Dot extends GameObject{
 	private int step = 0;
 	private Color dotColor = Color.black;
 	private boolean dead;
-	private int[] fitnessInterval;
+	private double[] fitnessInterval;
 	private static double mutationRate = .01;
 	private boolean selected = false;
 	
@@ -24,7 +24,7 @@ public class Dot extends GameObject{
 		plan = new int[steps];
 		dead = false;
 		
-		fitnessInterval = new int[2];
+		fitnessInterval = new double[2];
 		for (int i =0; i < plan.length; i++) {
 			plan[i] = (int)((Math.random()*2-1)*5);
 		}
@@ -34,7 +34,7 @@ public class Dot extends GameObject{
 		super(DotGame.STARTX, DotGame.STARTY, id, handler);
 		this.plan = plan;
 		dead = false;
-		fitnessInterval = new int[2];
+		fitnessInterval = new double[2];
 	}
 	
 	@Override 
@@ -67,11 +67,11 @@ public class Dot extends GameObject{
 		}
 	}
 	
-	public void setFitnessInterval(int[] interval) {
+	public void setFitnessInterval(double[] interval) {
 		fitnessInterval = interval;
 	}
 	
-	public int[] getFitnessInterval() {
+	public double[] getFitnessInterval() {
 		return fitnessInterval;
 	}
 	
