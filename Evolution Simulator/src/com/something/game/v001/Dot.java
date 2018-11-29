@@ -5,7 +5,7 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.util.Random;
 
-public class Dot extends GameObject{
+public class Dot extends GameObject implements Comparable<Dot>{
 	private static ID id = ID.Dot;
 	private static final int steps = 200;
 	
@@ -15,8 +15,9 @@ public class Dot extends GameObject{
 	private Color dotColor = Color.black;
 	private boolean dead;
 	private double[] fitnessInterval;
-	private static double mutationRate = .01;
+	private static double mutationRate = .07;
 	private boolean selected = false;
+	private double fitness = 0.0;
 	
 	public Dot(int x, int y, Handler handler) {
 		super(x, y, id, handler);
@@ -30,8 +31,8 @@ public class Dot extends GameObject{
 		}
 	}
 	
-	public Dot(Handler handler, int[] plan) {
-		super(DotGame.STARTX, DotGame.STARTY, id, handler);
+	public Dot(int x, int y, Handler handler, int[] plan) {
+		super(x, y, id, handler);
 		this.plan = plan;
 		dead = false;
 		fitnessInterval = new double[2];
@@ -39,8 +40,8 @@ public class Dot extends GameObject{
 	
 	@Override 
 	public String toString() {
-		return "Dot, position = (" + x + " , " + y + ")" + "\n" + 
-				"Fitness = " + fitnessInterval[1] + " - " +  fitnessInterval[0];
+		return "Dot, position = (" + x + " , " + y + ")" + "\t\t" 
+				+ "Fitness = " + fitness;
 	}
 	
 	public void select() {
@@ -120,23 +121,43 @@ public class Dot extends GameObject{
 
 
 	public Dot makeBaby() {
-		// TODO Auto-generated method stub
 		for (int i = 0; i < plan.length; i ++ ) {
 			if (Math.random() <= mutationRate) {
 				//System.out.println("Mutation Made");
 				plan[i] = (int)((Math.random()*2-1)*5);
 			}
 		}
-		return new Dot(handler, plan);
+		return new Dot(x, y, handler, plan);
 	}
-
-	public Dot reset() {
-		return new Dot(handler, plan);
-	}
-	
 	
 	public int distanceToVal(int x, int y) {
 		return (int)Math.hypot(this.x - x, this.y - y);
+	}
+
+	public void setFitnessScore(double fitness) {
+		this.fitness  = fitness;
+	}
+
+	public double getFitnessScore() {
+		return fitness;
+	}
+
+	@Override
+	public int compareTo(Dot compareDot) {
+		if (this.fitness > compareDot.fitness) {
+			return 1;
+		}
+		if (this.fitness < compareDot.fitness) {
+			return -1;
+		}
+		return 0;
+	}
+
+	public void restart() {
+		this.x = DotGame.STARTX;
+		this.y = DotGame.STARTY;
+		this.step = 0;
+		this.dead = false;
 	}
 	
 }

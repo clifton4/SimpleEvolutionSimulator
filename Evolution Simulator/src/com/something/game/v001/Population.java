@@ -7,7 +7,7 @@ public class Population extends GameObject{
 
 	private int generation;
 	private Dot[] dots;
-	public int populationSize = 200;
+	public int populationSize = 6; //must be even
 	private static ID id = ID.Population;
 	
 	
@@ -75,7 +75,7 @@ public class Population extends GameObject{
 	}
 
 
-	public Object getDots() {
+	public Dot[] getDots() {
 		// TODO Auto-generated method stub
 		return dots;
 	}

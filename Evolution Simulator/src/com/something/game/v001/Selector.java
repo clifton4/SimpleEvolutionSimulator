@@ -1,6 +1,8 @@
 package com.something.game.v001;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class Selector {
 	private Handler handler;
@@ -25,37 +27,60 @@ public class Selector {
 	
 	public void tick() {
 		if (myPop.isDead()){
-			handler.remove(myPop);
-			myPop.setDots(makeBabies());
-			handler.add(myPop);
+			reset();
 		}
 	}
 	
+	public void reset() {
+
+		handler.remove(myPop);
+		
+		myPop.setDots(makeBabies());
+		handler.add(myPop);
+		
+	}
+	
+	public void generate() {
+		handler.add(myPop);
+		handler.add(new SimpleBarrier(0, 0, DotGame.WIDTH, 10, handler));
+		handler.add(new SimpleBarrier(0, 0, 10, DotGame.HEIGHT, handler));
+		
+		handler.add(new SimpleBarrier(0, DotGame.HEIGHT-39, DotGame.WIDTH, 10, handler));
+		handler.add(new SimpleBarrier(DotGame.WIDTH-15, 0, 10, DotGame.HEIGHT, handler));
+		handler.add(new Goal(DotGame.WIDTH/2, 100, handler));
+	}
+
+	
+	/**
+	 * This method creates a new array of dots from myPop.getDots()
+	 * It selects only the top scoring half according to the fitness function and replaces the bottom scoring half with children of the top
+	 * 
+	 * @return a new Dot array made of the fittest dots from last population and their children
+	 */
 	private Dot[] makeBabies() {
 		double totalFitness = 0;
 		
 		//calculate total fitness
 		
-		for (Dot dot : (Dot[])myPop.getDots()) {
+		for (Dot dot : myPop.getDots()) {
 			double fitness = fitness(dot);
-			totalFitness += fitness;
+			totalFitness = totalFitness + fitness;
+			//System.out.println("fitness =   " + fitness + "\t total = " + totalFitness);
 			double[] fitnessInterval = {(totalFitness-fitness), totalFitness};
 			dot.setFitnessInterval(fitnessInterval);
-			System.out.print("Dot of distance: " + 
-					dot.distanceToVal(DotGame.WIDTH/2, 100));
-			System.out.println("\t was given a fitness score of: " + fitness);
+			dot.setFitnessScore(fitness);
 		}
-		System.out.println("calculated total fitness: " + totalFitness);
+		System.out.println("Total fitness = " + totalFitness);
 		
 		
 		ArrayList<Dot> newDots = new ArrayList<Dot>();
-		
+		Arrays.sort(myPop.getDots(), Collections.reverseOrder());
 		
 		//randomly select fitness scores and keep the dots within that range 
 		/**
 		while (newDots.size() < myPop.populationSize/2) {
 			int selection = (int)(Math.random()*totalFitness);
-			for (Dot dot : (Dot[])myPop.getDots()) {
+			for (Dot dot : myPop.getDots()) {
 				if (dot.inFitnessInterval(selection)){
 					if (!(dot.isSelected())) {
 						dot.select();
@@ -67,22 +92,31 @@ public class Selector {
 		**/
 		//or select all the highest scoring dots
 		
-		
-		
-		Dot[] newDotArray = new Dot[myPop.populationSize];
-		
-		for (int i = 0; i < newDotArray.length; i ++) {
-			if ( i < newDots.size()) {
-				//System.out.println("Reseting a dot...");
-				newDotArray[i] = newDots.get(i).reset();
-			}else {
-				//System.out.println("Creating new dot...");
-				newDotArray[i] = newDots.get(myPop.populationSize-i-1).makeBaby();
-			}
+		System.out.println("The best dot was " + myPop.getDots()[0]);
+		int counter = 0;
+		while (newDots.size() < (myPop.populationSize/2)) {
+				Dot dot = myPop.getDots()[counter];
+				dot.select(); 
+				counter ++;
+				newDots.add(dot);
 		}
 		
-		return newDotArray;
 		
+		
+		//fill the remaining slots with babies of the existing dots
+		Dot[] newDotArray = new Dot[myPop.populationSize];
+		
+		for (int i = 0; i < newDots.size(); i ++) {
+				newDotArray[i] = newDots.get(i);
+				newDotArray[i + myPop.populationSize/2] = newDots.get(i).makeBaby();
+				//System.out.println("added dot " + newDots.get(i));
+			}
+		for (Dot dot : newDotArray) {
+			System.out.println(dot);
+			dot.restart();
+		}
+
+		return newDotArray;
 	}
 	
 	private Dot[] convertListToArray(ArrayList<Dot> dots) {
@@ -95,6 +129,11 @@ public class Selector {
 
 	private double fitness(Dot dot) {
 		double dist = dot.distanceToVal(goalX, goalY);
-		return 1 / (Math.pow(dist, 3));
+		double score = Double.MAX_VALUE / (Math.pow(dist, 5));
+		
+		//truncate the double to 5 decimcal places and return it
+		//not doing this was causing serious errors in adding fitnesses to find total fitness
+		String scoreStr = Double.toString(score);
+		return Double.parseDouble(scoreStr.substring(0, scoreStr.indexOf(".") + 6));
 	}
 }

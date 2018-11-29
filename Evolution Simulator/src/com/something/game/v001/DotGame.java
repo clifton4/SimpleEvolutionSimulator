@@ -27,19 +27,8 @@ public class DotGame extends Canvas implements Runnable{
 		new Window(WIDTH, HEIGHT, "Dot Simulator", this);
 		
 		
-		handler.add(myPop);
-		
 		//create barriers along the window edges
-		handler.add(new SimpleBarrier(0, 0, WIDTH, 10, handler));
-		handler.add(new SimpleBarrier(0, 0, 10, HEIGHT, handler));
-		
-		handler.add(new SimpleBarrier(0, HEIGHT-39, WIDTH, 10, handler));
-		handler.add(new SimpleBarrier(WIDTH-15, 0, 10, HEIGHT, handler));
-		handler.add(new Goal(WIDTH/2, 100, handler));
-		
-		// selector can only be initialized when
-		  // it is passed a handler that contains a
-		  // population
+		selector.generate();
 	}
 	
 	public static void main(String[] args) {
