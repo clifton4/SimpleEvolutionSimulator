@@ -88,6 +88,7 @@ public class DotGame extends Canvas implements Runnable{
 		long timer = System.currentTimeMillis();
 		int frames = 0;
 		while(running) {
+			//tick();
 			long now = System.nanoTime();
 			delta += (now - lastTime) / ns;
 			lastTime = now;

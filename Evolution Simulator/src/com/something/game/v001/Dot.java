@@ -7,7 +7,7 @@ import java.util.Random;
 
 public class Dot extends GameObject implements Comparable<Dot>{
 	private static ID id = ID.Dot;
-	private static final int steps = 200;
+	private static final int steps = 1000;
 	
 	private int width = 10, height = 10;
 	private int[] plan;
@@ -15,7 +15,7 @@ public class Dot extends GameObject implements Comparable<Dot>{
 	private Color dotColor = Color.black;
 	private boolean dead;
 	private double[] fitnessInterval;
-	private static double mutationRate = .07;
+	private static double mutationRate = .001;
 	private boolean selected = false;
 	private double fitness = 0.0;
 	
@@ -121,13 +121,20 @@ public class Dot extends GameObject implements Comparable<Dot>{
 
 
 	public Dot makeBaby() {
-		for (int i = 0; i < plan.length; i ++ ) {
+		
+		int[] newPlan = new int[plan.length];
+		for (int i = 0; i < newPlan.length; i ++ ) {
 			if (Math.random() <= mutationRate) {
 				//System.out.println("Mutation Made");
-				plan[i] = (int)((Math.random()*2-1)*5);
+				newPlan[i] = (int)((Math.random()*2-1)*5);
+			}
+			else {
+				newPlan[i] = plan[i];
+				mutationRate += .0003;
 			}
 		}
-		return new Dot(x, y, handler, plan);
+		
+		return new Dot(x, y, handler, newPlan);
 	}
 	
 	public int distanceToVal(int x, int y) {

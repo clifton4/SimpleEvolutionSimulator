@@ -70,7 +70,7 @@ public class Selector {
 			dot.setFitnessInterval(fitnessInterval);
 			dot.setFitnessScore(fitness);
 		}
-		System.out.println("Total fitness = " + totalFitness);
+		
 		
 		
 		ArrayList<Dot> newDots = new ArrayList<Dot>();
@@ -112,7 +112,7 @@ public class Selector {
 				//System.out.println("added dot " + newDots.get(i));
 			}
 		for (Dot dot : newDotArray) {
-			System.out.println(dot);
+			
 			dot.restart();
 		}
 
