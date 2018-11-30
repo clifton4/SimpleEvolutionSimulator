@@ -7,7 +7,7 @@ public class Population extends GameObject{
 
 	private int generation;
 	private Dot[] dots;
-	public int populationSize = 2; //must be even
+	public int populationSize = 400; //must be even
 	private static ID id = ID.Population;
 	
 	
@@ -49,9 +49,14 @@ public class Population extends GameObject{
 	}
 
 	public void tick() {
+		int alive = 0;
 		for (int i = 0; i < dots.length; i ++) {
 			dots[i].tick();
+			if (!dots[i].isDead()) {
+				alive ++;
+			}
 		}
+		//System.out.println(alive + " dots are alive");
 	}
 
 

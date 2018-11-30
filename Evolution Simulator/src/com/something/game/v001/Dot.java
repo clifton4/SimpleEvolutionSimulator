@@ -7,24 +7,24 @@ import java.util.Random;
 
 public class Dot extends GameObject implements Comparable<Dot>{
 	private static ID id = ID.Dot;
-	private static final int steps = 1000;
+	private static final int steps = 640;
 	
 	private int width = 10, height = 10;
 	private int[] plan;
 	private int step = 0;
 	private Color dotColor = Color.black;
-	private boolean dead;
+	private boolean isDead = false, isVictor = false;
 	private double[] fitnessInterval;
-	private static double mutationRate = .001;
+	private double mutationRate = 0.0;
 	private boolean selected = false;
-	private double fitness = 0.0;
+	private int fitness = 0;
+	private int velX = 0, velY = 0;
 	
 	public Dot(int x, int y, Handler handler) {
 		super(x, y, id, handler);
 		
 		plan = new int[steps];
-		dead = false;
-		
+		isDead = false;
 		fitnessInterval = new double[2];
 		for (int i =0; i < plan.length; i++) {
 			plan[i] = (int)((Math.random()*2-1)*5);
@@ -34,14 +34,14 @@ public class Dot extends GameObject implements Comparable<Dot>{
 	public Dot(int x, int y, Handler handler, int[] plan) {
 		super(x, y, id, handler);
 		this.plan = plan;
-		dead = false;
+		isDead = false;
 		fitnessInterval = new double[2];
 	}
 	
 	@Override 
 	public String toString() {
 		return "Dot, position = (" + x + " , " + y + ")" + "\t\t" 
-				+ "Fitness = " + fitness;
+				+ "Fitness = " + fitness + " this dot is a victor: " + isVictor();
 	}
 	
 	public void select() {
@@ -54,7 +54,7 @@ public class Dot extends GameObject implements Comparable<Dot>{
 	}
 	
 	public boolean isDead() {
-		return dead;
+		return isDead;
 	}
 	
 	private void checkCollision() {
@@ -62,9 +62,18 @@ public class Dot extends GameObject implements Comparable<Dot>{
 			GameObject object = handler.get(i);
 			if (object.id == ID.SimpleBarrier) {
 				if (this.getBounds().intersects(object.getBounds())) {
-					dead = true;
+					isDead = true;
 				}
 			}
+			if (object.id == ID.Goal) {
+				if (this.getBounds().intersects(object.getBounds())) {
+					isDead = true;
+					isVictor = true;
+				}
+			}
+		}
+		if (this.x > DotGame.WIDTH || this.y > DotGame.HEIGHT || this.x < 0 || this.y < 0) {
+			isDead = true;
 		}
 	}
 	
@@ -86,7 +95,7 @@ public class Dot extends GameObject implements Comparable<Dot>{
 	@Override
 	public void tick() {
 		if (step >= plan.length -1) {
-			dead = true;
+			isDead = true;
 		}
 		else {
 			checkCollision();
@@ -94,11 +103,17 @@ public class Dot extends GameObject implements Comparable<Dot>{
 		
 		
 		if( !isDead() ){
-			x += plan[step];
+			velX += plan[step];
 			step ++;
 		
-			y += plan[step];
+			velY += plan[step];
 			step ++;
+			
+			
+			DotGame.clamp(velX, -3, 3);
+			DotGame.clamp(velY, -3, 3);
+			y += velY;
+			x += velX;
 		}
 		else {
 			
@@ -125,12 +140,11 @@ public class Dot extends GameObject implements Comparable<Dot>{
 		int[] newPlan = new int[plan.length];
 		for (int i = 0; i < newPlan.length; i ++ ) {
 			if (Math.random() <= mutationRate) {
-				//System.out.println("Mutation Made");
 				newPlan[i] = (int)((Math.random()*2-1)*5);
 			}
 			else {
 				newPlan[i] = plan[i];
-				mutationRate += .0003;
+				mutationRate += .00001;
 			}
 		}
 		
@@ -138,14 +152,16 @@ public class Dot extends GameObject implements Comparable<Dot>{
 	}
 	
 	public int distanceToVal(int x, int y) {
-		return (int)Math.hypot(this.x - x, this.y - y);
+		int distX = (this.x - x) * (this.x - x);
+		int distY = (this.y - y) * (this.y - y);
+		return (int)Math.sqrt(distX + distY);
 	}
 
-	public void setFitnessScore(double fitness) {
+	public void setFitnessScore(int fitness) {
 		this.fitness  = fitness;
 	}
 
-	public double getFitnessScore() {
+	public int getFitnessScore() {
 		return fitness;
 	}
 
@@ -164,7 +180,21 @@ public class Dot extends GameObject implements Comparable<Dot>{
 		this.x = DotGame.STARTX;
 		this.y = DotGame.STARTY;
 		this.step = 0;
-		this.dead = false;
+		this.isDead = false;
 	}
+
+	public void setColor(Color red) {
+		this.dotColor = red;
+	}
+	
+	public boolean isVictor() {
+		return isVictor;
+	}
+	
+	public void setIsVictor(boolean isVictor) {
+		this.isVictor = isVictor;
+	}
+	
+	
 	
 }
