@@ -13,6 +13,7 @@ public class Selector {
 	public Selector(Handler handler, Population myPop) {
 		this.handler = handler;
 		this.myPop = myPop;
+		generate();
 		setGoal();
 	}
 	
@@ -24,6 +25,7 @@ public class Selector {
 				return;
 			}
 		}
+		System.out.println("NO GOAL FOUND");
 	}
 	
 	public void tick() {
@@ -51,7 +53,8 @@ public class Selector {
 		
 		handler.add(new SimpleBarrier(0, DotGame.HEIGHT-39, DotGame.WIDTH, 10, handler));
 		handler.add(new SimpleBarrier(DotGame.WIDTH-15, 0, 10, DotGame.HEIGHT, handler));
-		handler.add(new Goal(DotGame.WIDTH/2, 100, handler));
+		handler.add(new Goal(20, 100, handler));
+		System.out.println("Goal Position is: (" + DotGame.WIDTH/2 + " , " + 100 + ")");
 	}
 
 	
@@ -62,13 +65,13 @@ public class Selector {
 	 * @return a new Dot array made of the fittest dots from last population and their children
 	 */
 	private Dot[] makeBabies() {
-		int totalFitness = 0;
+		double totalFitness = 0;
 		//calculate total fitness
 		
 		for (Dot dot : myPop.getDots()) {
-			int fitness = fitness(dot);
+			double fitness = fitness(dot);
 			totalFitness = totalFitness + fitness;
-			//System.out.println("fitness =   " + fitness + "\t total = " + totalFitness);
+			System.out.println("fitness =   " + fitness + "\t total = " + totalFitness);
 			dot.setFitnessScore(fitness);
 		}
 		
@@ -81,17 +84,21 @@ public class Selector {
 		Dot bestDot = myPop.getDots()[0];
 		
 		for (int i = 1; i < newDots.length; i ++) {
-			int selection = (int)(Math.random() * totalFitness);
-			int sumFit = 0;
+			double selection = (int)(Math.random() * totalFitness);
+			double sumFit = 0;
+			//System.out.println("totalFitness = " + totalFitness);
+			//System.out.println("selection = " + selection);
 			for (Dot oldDot : myPop.getDots()) {
 				sumFit += oldDot.getFitnessScore();
-				if (sumFit > selection) {
+				//System.out.println("sumFit = " + sumFit);
+				if (sumFit >= selection) {
+					//System.out.println("Sumfit > selection");
 					newDots[i] = oldDot.makeBaby();
 					break;
 				}
 			}
 			if (newDots[i] == null) {
-				System.out.println("Failed to find fit dot");
+				//System.out.println("Failed to find fit dot");
 			}
 		}
 		
@@ -112,12 +119,21 @@ public class Selector {
 		return array;
 	}
 
-	private int fitness(Dot dot) {
-		float dist = dot.distanceToVal(goalX, goalY);
-		float temp = (float) Math.pow(dist,  5);
-		//System.out.println("temp = " + temp);
-		float score = (1 / temp);
-	
+	private double fitness(Dot dot) {
+		
+		//System.out.println("goal = (" + goalX + ", " + goalY + ")");
+		//System.out.println("pos = (" + dot.getX() + ", " + dot.getY() + ")");
+		
+		
+		double dist = dot.distanceToVal(goalX, goalY);
+		//System.out.println("dist = " + dist);
+		
+		dist = Math.pow(dist, .2);
+		//System.out.println("dist^(.2) = " + dist);
+
+		double score = (1 / dist);
+		//System.out.println("1 / dist = " + score);
+		
 		
 		//System.out.println(dot);
 		//System.out.println("Score = " + score + " dist = " + dist);
@@ -131,6 +147,9 @@ public class Selector {
 		 *  - cannot explain this result
 		 */
 		
-		return Integer.parseInt(Float.toString(score).substring(0, 1));
+		long y = (long)(score*100);
+	    score = (double)y/100;
+	    score = DotGame.clamp(score, 0, 10000);
+	    return score;
 	}
 }

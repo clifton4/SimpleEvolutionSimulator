@@ -17,7 +17,7 @@ public class Dot extends GameObject implements Comparable<Dot>{
 	private double[] fitnessInterval;
 	private double mutationRate = 0.0;
 	private boolean selected = false;
-	private int fitness = 0;
+	private double fitness = 0;
 	private int velX = 0, velY = 0;
 	
 	public Dot(int x, int y, Handler handler) {
@@ -110,8 +110,8 @@ public class Dot extends GameObject implements Comparable<Dot>{
 			step ++;
 			
 			
-			DotGame.clamp(velX, -3, 3);
-			DotGame.clamp(velY, -3, 3);
+			DotGame.clamp(velX, -2, 2);
+			DotGame.clamp(velY, -2, 2);
 			y += velY;
 			x += velX;
 		}
@@ -151,17 +151,20 @@ public class Dot extends GameObject implements Comparable<Dot>{
 		return new Dot(x, y, handler, newPlan);
 	}
 	
-	public int distanceToVal(int x, int y) {
-		int distX = (this.x - x) * (this.x - x);
-		int distY = (this.y - y) * (this.y - y);
-		return (int)Math.sqrt(distX + distY);
+	public double distanceToVal(int x, int y) {
+		//System.out.println("getX() - x = " + (getX()-x));
+		double distX = Math.pow((getX() - x), 2);
+		//System.out.println("x^2 = " + distX);
+		double distY = Math.pow((getY() - y), 2);
+		//System.out.println("Y^2 = " + distY);
+		return Math.sqrt(distX + distY);
 	}
 
-	public void setFitnessScore(int fitness) {
+	public void setFitnessScore(double fitness) {
 		this.fitness  = fitness;
 	}
 
-	public int getFitnessScore() {
+	public double getFitnessScore() {
 		return fitness;
 	}
 
@@ -181,6 +184,7 @@ public class Dot extends GameObject implements Comparable<Dot>{
 		this.y = DotGame.STARTY;
 		this.step = 0;
 		this.isDead = false;
+		this.isVictor = false;
 	}
 
 	public void setColor(Color red) {

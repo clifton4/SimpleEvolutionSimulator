@@ -28,7 +28,7 @@ public class DotGame extends Canvas implements Runnable{
 		
 		
 		//create barriers along the window edges
-		selector.generate();
+		//selector.generate();
 	}
 	
 	public static void main(String[] args) {
@@ -111,6 +111,12 @@ public class DotGame extends Canvas implements Runnable{
 	
 	
 	public static int clamp(int var, int min, int max) {
+		if (var >= max) return max;
+		else if (var <= min) return min;
+		else return var;
+	}
+	
+	public static double clamp(double var, double min, double max) {
 		if (var >= max) return max;
 		else if (var <= min) return min;
 		else return var;
